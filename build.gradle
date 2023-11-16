@@ -1,0 +1,97 @@
+plugins {
+    id "java"
+    id 'base'
+    id 'org.sonarqube' version '3.3'
+    id 'project.java-owasp'
+    id 'project.java-license'
+    id "org.ajoberstar.grgit" version "4.1.1"
+}
+
+ext {
+    platformGroup = "com.aoodax.platform.simple"
+    dockerRegistry = System.getenv('DOCKER_REGISTRY') ?: 'localhost:5000'
+}
+
+def imageTags() {
+    def branchName = System.getenv('BUILD_SOURCEBRANCHNAME') ?: 'latest'
+    def tags = [version, branchName.replaceAll('/', '.')]
+    def commitHash = System.getenv('BUILD_SOURCEVERSION')
+    if (commitHash) {
+        return tags + [commitHash[0..7]]
+    }
+    return tags
+}
+
+subprojects {
+    apply plugin: 'subproject.java-conventions'
+    apply plugin: 'maven-publish'
+    version = '1.0.0'
+    group = 'com.aoodax.platform'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+//        maven {
+//            credentials {
+//                username System.getenv('REPOSITORY_USERNAME')
+//                password System.getenv('REPOSITORY_PASSWORD')
+//            }
+//            url "https://artifactory.aoodax.com/artifactory/maven-${getBranchName() == 'main' ? 'releases' : 'snapshots'}/"
+//        }
+    }
+
+    dependencies {
+        implementation 'com.aoodax.jvm.common:utils'
+        implementation 'jakarta.annotation:jakarta.annotation-api'
+        implementation 'com.google.code.findbugs:jsr305'
+
+        compileOnly "org.projectlombok:lombok"
+        annotationProcessor "org.projectlombok:lombok"
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation 'org.mockito:mockito-junit-jupiter'
+        testImplementation 'com.aoodax.jvm.common:unit-test'
+        testImplementation 'com.aoodax.jvm.common:test-toolkit'
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.exclusions",
+                "**/entrypoint/**/*.java," +
+                        "**/*Exception.java," +
+                        "**/configuration/**/*," +
+                        "**/dto/**," +
+                        "**/meta/**," +
+                        "**/filter/**," +
+                        "**/interfaces/**," +
+                        "**/entity/**," +
+                        "**/*Meta.java," +
+                        "**/enumeration/**," +
+                        "**/utils/**," +
+                        "**/repository/**," +
+                        "**/specification/**,"
+
+    }
+}
+
+def environmentPlatformVersion(libraryVersion) {
+    def branch = getBranchName()
+    switch (branch) {
+        case "develop":
+            return "$libraryVersion-SNAPSHOT"
+        case "main":
+            return libraryVersion
+        default:
+            if (branch =~ /^release.*/) {
+                return "$libraryVersion-release-SNAPSHOT"
+            }
+            return "$libraryVersion-SNAPSHOT"
+    }
+}
+
+private String getBranchName() {
+    return "develop"
+//    System.getenv("ci_commit_branch") ?: grgit.getBranch().current().name //TODO uncomment
+}

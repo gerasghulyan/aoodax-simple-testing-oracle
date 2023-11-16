@@ -1,0 +1,25 @@
+project(":facade:facade-core") {
+
+    dependencies {
+        api project(":api:rest:api-rest-model")
+        api project(":business:business-core")
+        implementation "org.springframework:spring-context"
+        api "org.springframework.boot:spring-boot-starter-web"
+    }
+}
+
+project(":facade:facade-impl") {
+
+    dependencies {
+        runtimeOnly project(":business:business-impl")
+        implementation "org.mapstruct:mapstruct"
+        annotationProcessor "org.mapstruct:mapstruct-processor"
+        testImplementation project(":test-toolkit:test-toolkit-unit")
+    }
+
+    test {
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+}

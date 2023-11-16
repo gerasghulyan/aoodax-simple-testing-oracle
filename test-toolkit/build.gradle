@@ -1,0 +1,17 @@
+project(":test-toolkit:test-toolkit-unit") {
+    dependencies {
+        api 'com.aoodax.jvm.common:test-toolkit'
+        api project(":api:rest:api-rest-model")
+        api project(":business:business-core")
+        api project(":persistence:persistence-core")
+        api project(":facade:facade-core")
+        api 'org.mockito:mockito-junit-jupiter'
+    }
+}
+
+project(":test-toolkit:test-toolkit-integration") {
+    dependencies {
+        implementation project(":test-toolkit:test-toolkit-unit")
+        implementation "com.aoodax.jvm.common:integration-test-oracle"
+    }
+}

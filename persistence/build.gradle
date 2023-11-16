@@ -1,0 +1,14 @@
+project(":persistence:persistence-core") {
+
+    dependencies {
+        
+        api "com.aoodax.jvm.common:persistence-oracle"
+    }
+}
+
+project(":persistence:persistence-impl") {
+
+    dependencies {
+        implementation project(":persistence:persistence-core")
+    }
+}

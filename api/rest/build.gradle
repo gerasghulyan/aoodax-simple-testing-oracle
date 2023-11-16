@@ -1,0 +1,110 @@
+project(":api:rest:api-rest-model") {
+    dependencies {
+        api "com.aoodax.jvm.common:rest-dto"
+        implementation "com.fasterxml.jackson.core:jackson-databind"
+        implementation 'jakarta.annotation:jakarta.annotation-api'
+    }
+}
+
+
+//project(":api:rest:api-rest-facade") {
+//
+//    dependencies {
+//        api project(":api:rest:api-rest-model")
+//        api project(":business:business-core")
+//        runtimeOnly project(":business:business-impl")
+//        implementation "org.springframework:spring-context"
+//        implementation "org.springframework.boot:spring-boot-starter-web"
+//        testImplementation project(":test-toolkit:test-toolkit-rest-resource-unit")
+//        testImplementation project(":test-toolkit:test-toolkit-business-unit")
+//    }
+//
+//    test {
+//        testLogging {
+//            events "passed", "skipped", "failed"
+//        }
+//    }
+//}
+
+project(":api:rest:api-rest-resource") {
+
+    dependencies {
+        implementation project(":facade:facade-core")
+        runtimeOnly project(":facade:facade-impl")
+        implementation "org.springframework.boot:spring-boot-starter-web"
+    }
+}
+
+project(":api:rest:api-rest-resource-executable") {
+
+    apply plugin: "org.springframework.boot"
+    apply plugin: "com.google.cloud.tools.jib"
+
+    tasks.named("bootJar") {
+        mainClass = "${group}.rest.executable.AoodaxPlatformApplication"
+        manifest {
+            attributes(
+                    "Implementation-Version": platformVersion
+            )
+        }
+    }
+
+    jib {
+        from {
+            image = "openjdk:17"
+        }
+        to {
+            image = "${dockerRegistry}/${rootProject.name}-api"
+            tags = imageTags()
+        }
+        container {
+            jvmFlags = ["-XX:MaxRAMPercentage=75"]
+            ports = ["8080"]
+            workingDirectory = "/app"
+        }
+    }
+
+    dependencies {
+        runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+        implementation project(":api:rest:api-rest-resource")
+        implementation "org.springframework.boot:spring-boot-starter-web"
+        implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui'
+        implementation "org.springframework.boot:spring-boot-starter-actuator"
+        implementation "org.springframework.boot:spring-boot-starter-validation"
+    }
+}
+
+project(":api:rest:api-rest-resource-integration-test") {
+
+    dependencies {
+        testImplementation project(":api:rest:api-rest-resource-executable")
+//        testImplementation project(":entrypoint:rest:api")
+        testImplementation project(":test-toolkit:test-toolkit-integration")
+
+        testImplementation 'org.junit.jupiter:junit-jupiter-api'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine'
+        testImplementation 'org.testcontainers:testcontainers'
+        testImplementation 'org.testcontainers:junit-jupiter'
+        testImplementation "org.testcontainers:oracle-xe"
+        
+//        testImplementation "com.aoodax.jvm.common:integration-test-oracle"
+        testImplementation project(":test-toolkit:test-toolkit-unit")
+        testImplementation "org.springframework.boot:spring-boot-starter-test"
+    }
+    
+    test {
+        onlyIf {
+            !project.hasProperty('integrationTests') || project.property('integrationTests') == 'true'
+        }
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+}
+
+//project(":api:rest:api-rest-client") {
+//    dependencies {
+//        api project(":api:rest:api-rest-model")
+////        api "org.springframework.cloud:spring-cloud-starter-openfeign"
+//    }
+//}

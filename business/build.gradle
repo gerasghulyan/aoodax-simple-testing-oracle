@@ -1,0 +1,26 @@
+project(":business:business-core") {
+
+    dependencies {
+        implementation "org.springframework:spring-core"
+    }
+}
+
+project(":business:business-impl") {
+
+    dependencies {
+        api project(":business:business-core")
+        implementation project(":persistence:persistence-core")
+        runtimeOnly project(":persistence:persistence-impl")
+        implementation "org.springframework:spring-context"
+        implementation "org.mapstruct:mapstruct"
+        annotationProcessor "org.mapstruct:mapstruct-processor"
+        testRuntimeOnly "org.slf4j:slf4j-simple"
+        testImplementation project(":test-toolkit:test-toolkit-unit")
+    }
+
+    test {
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+}

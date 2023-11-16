@@ -1,0 +1,37 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'aoodax-sql'
+
+// Rest API
+include "api:rest:api-rest-model"
+include "api:rest:api-rest-resource"
+include "api:rest:api-rest-resource-executable"
+include "api:rest:api-rest-resource-integration-test"
+// Queue
+include "queue:queue-message"
+include "queue:queue-producer"
+include "queue:queue-consumer"
+include "queue:queue-consumer-executable"
+include "queue:queue-consumer-integration-test"
+// Facade logic
+include "facade:facade-core"
+include "facade:facade-impl"
+// Business logic
+include "business:business-core"
+include "business:business-impl"
+// Persistence
+include "persistence:persistence-core"
+include "persistence:persistence-impl"
+// Test toolkit
+include "test-toolkit:test-toolkit-unit"
+include "test-toolkit:test-toolkit-integration"
