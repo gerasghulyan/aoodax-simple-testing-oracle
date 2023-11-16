@@ -1,6 +1,7 @@
 package com.aoodax.platform.simple.persistence.tag;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.ParameterMode;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
 import java.util.List;
 
 import static com.aoodax.jvm.common.utils.validation.ParameterValidator.assertNotNullParameterArgument;
@@ -33,5 +35,14 @@ public class CustomizedTagRepositoryImpl implements CustomizedTagRepository {
                 .getSingleResult();
         log.debug("Successfully executed get tags with page info - {}", pageable);
         return new PageImpl<>(resultList, PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()), totalRecords);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<TagEntity> customFindByProc(final Long id) {
+        return entityManager.createStoredProcedureQuery("TEST_GET_TAG_BY_ID_PROC", TagEntity.class)
+                .registerStoredProcedureParameter("tagId", Long.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("cursor_out", ResultSet.class, ParameterMode.REF_CURSOR)
+                .setParameter("tagId", id).getResultList();
     }
 }

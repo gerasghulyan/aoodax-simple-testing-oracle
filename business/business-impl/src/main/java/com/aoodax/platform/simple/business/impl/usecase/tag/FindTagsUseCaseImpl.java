@@ -37,6 +37,18 @@ public class FindTagsUseCaseImpl implements FindTagsUseCase {
         final Page<TagEntity> tags = repository.find(PageRequest.of(pagination.getPage(), pagination.getSize()));
         log.debug("Tags successfully retrieving for pageable: {} with tags - {}", pagination, tags);
         final List<TagResponse> result = tags.stream().map(mapper::toResponse).collect(Collectors.toList());
+
+//        try {
+//            final ResultSet resultSet = repository.getResultSetById(1L);
+//            final Object object = resultSet.getObject(0);
+//            log.info("Result set object succeed with value - {}", object);
+//        } catch (final SQLException ex) {
+//            log.error("Unexpected error occurred", ex);
+//        }
+
+        final List<TagEntity> tagsFromProcedure = repository.customFindByProc(1L);
+        log.info("tagsFromProcedure succeed with value - {}", tagsFromProcedure);
+
         return TagGridResponse.builder().items(result).total(tags.getTotalElements()).build();
     }
 }

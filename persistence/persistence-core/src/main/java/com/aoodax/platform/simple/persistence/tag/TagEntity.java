@@ -2,6 +2,9 @@ package com.aoodax.platform.simple.persistence.tag;
 
 import com.aoodax.platform.simple.persistence.common.AbstractUuidAwareEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,6 +16,15 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Entity(name = "TAG")
+@NamedStoredProcedureQuery(
+        name = "getTagByIdProc",
+        procedureName = "TEST_GET_TAG_BY_ID_FUNC",
+        resultClasses = { TagEntity.class },
+        parameters = {
+                @StoredProcedureParameter(name = "IN_ID", mode = ParameterMode.IN, type = Long.class),
+                @StoredProcedureParameter(name = "TagEntity", mode = ParameterMode.OUT, type = TagEntity.class)
+        }
+)
 public class TagEntity extends AbstractUuidAwareEntity {
 
     private String name;

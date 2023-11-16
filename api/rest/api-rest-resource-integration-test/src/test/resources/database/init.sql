@@ -14,28 +14,24 @@ CREATE SEQUENCE id_Sequence START WITH 1 INCREMENT BY 1;
 END;
 /
 
--- Create function to get all tags
--- create OR REPLACE FUNCTION TEST_GET_TAG_BY_ID_FUNC(P_ID IN NUMBER)
---     return sys_refcursor AS cursor_out sys_refcursor;
--- BEGIN
--- OPEN cursor_out FOR
--- SELECT *
--- FROM TAG tag
--- WHERE tag.ID = P_ID;
--- RETURN cursor_out;
--- 
--- END;
--- End get all tags function
+create or replace PROCEDURE TEST_GET_TAG_BY_ID_PROC (
+    tagId IN NUMBER,
+    tags OUT SYS_REFCURSOR )
+AS
+BEGIN
+OPEN tags FOR
+SELECT *
+FROM TAG
+WHERE id = tagId;
+END;
+/
 
--- create FUNCTION TEST_GET_TAG_BY_ID_FUNC(P_ID IN NUMBER)
---     return sys_refcursor AS cursor_out sys_refcursor;
--- BEGIN
--- OPEN cursor_out FOR
--- SELECT *
--- FROM TAG tag
--- WHERE tag.ID = P_ID;
--- RETURN cursor_out;
--- 
--- END;
--- /
+create or replace FUNCTION TEST_GET_TAG_BY_ID_FUNC(tagId IN NUMBER) RETURN SYS_REFCURSOR IS
+    result_cursor SYS_REFCURSOR;
+BEGIN
+OPEN result_cursor FOR
+SELECT * FROM TAG WHERE ID = tagId;
 
+RETURN result_cursor;
+END TEST_GET_TAG_BY_ID_FUNC;
+/
